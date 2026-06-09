@@ -10,8 +10,6 @@ type CardProps = {
   label?: string;
   value?: string;
   score?: number;
-  /** Progress fill 0-1 (No variant only) */
-  progress?: number;
 };
 
 /**
@@ -29,7 +27,6 @@ export default function Card({
   label = "Sleep score",
   value = "Great",
   score = 96,
-  progress = 0.6,
 }: CardProps) {
   if (withIcon) {
     return (
