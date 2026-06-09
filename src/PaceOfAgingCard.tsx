@@ -40,21 +40,27 @@ function rating(pace: number) {
 }
 
 export type RowStyle = "progress" | "icon";
+export type LabelStyle = "badge" | "minimal";
 
-type Props = { pace: number; rowStyle?: RowStyle };
+type Props = { pace: number; rowStyle?: RowStyle; labelStyle?: LabelStyle };
 
 /**
  * Pace of aging screen card — Figma node 22231:60234.
  * The ambient glow drifts continuously and shifts hue with the pace value.
  * The hero number briefly blurs as it changes for an elegant transition.
  */
-export default function PaceOfAgingCard({ pace, rowStyle = "progress" }: Props) {
+export default function PaceOfAgingCard({
+  pace,
+  rowStyle = "progress",
+  labelStyle = "badge",
+}: Props) {
   const glow = paceColor(pace);
   const fill = (pace - 0.5) / 1.0;
 
   return (
     <div className="poa" style={{ ["--glow" as string]: glow }}>
       <div className="poa__glow" aria-hidden />
+      <div className="poa__noise" aria-hidden />
 
       <div className="poa__top">
         <DialGauge fill={fill} color={glow} />
@@ -62,7 +68,11 @@ export default function PaceOfAgingCard({ pace, rowStyle = "progress" }: Props) 
         <div className="poa__hero">
           <p className="poa__kicker">Pace of aging</p>
           <p className="poa__stat">{pace.toFixed(2)}x</p>
-          <span className="poa__rating-badge">{rating(pace)}</span>
+          {labelStyle === "badge" ? (
+            <span className="poa__rating-badge">{rating(pace)}</span>
+          ) : (
+            <span className="poa__rating-minimal">{rating(pace)}</span>
+          )}
         </div>
 
         <p className="poa__caption poa__caption--ai">
