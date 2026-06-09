@@ -31,9 +31,9 @@
 .poa__glow {
   position: absolute;
   left: 50%;
-  top: -440px;
-  width: 760px;
-  height: 760px;
+  top: -510px;
+  width: 820px;
+  height: 800px;
   background: radial-gradient(
     50% 50% at 50% 50%,
     var(--glow, #9ff88b) 0%,

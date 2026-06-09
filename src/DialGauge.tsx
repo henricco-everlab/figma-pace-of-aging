@@ -49,6 +49,9 @@ export default function DialGauge({
   const litActive = Math.round(clamped * (activeCount - 1));
   const litIdx = aStart + litActive; // last lit tick (and triangle position)
 
+  // Highlight the selected tick and fade out the ones near it, rather than
+  // filling everything up to it like a progress bar.
+  const SPREAD = 5; // how many ticks on each side get highlighted
   const ticks = Array.from({ length: TICKS }, (_, i) => {
     const deg = startDeg + stepDeg * i;
     const rad = (deg * Math.PI) / 180;
@@ -58,10 +61,10 @@ export default function DialGauge({
     const y1 = cy - rOuter * sin;
     const x2 = cx + (rOuter - tickLen) * cos;
     const y2 = cy - (rOuter - tickLen) * sin;
-    // everything up to (and including) the indicator is filled — so the
-    // lower-left decorative ticks start already lit; the lower-right stay dim.
-    const lit = i <= litIdx;
-    return { x1, y1, x2, y2, lit };
+    const dist = Math.abs(i - litIdx);
+    // brightness peaks at the selected tick, eases to 0 by SPREAD
+    const glowAmt = dist <= SPREAD ? Math.pow(1 - dist / (SPREAD + 1), 1.6) : 0;
+    return { x1, y1, x2, y2, glowAmt };
   });
 
   // indicator: small triangle just OUTSIDE the last lit tick, apex pointing
@@ -83,17 +86,32 @@ export default function DialGauge({
       aria-hidden
     >
       {ticks.map((tk, i) => (
-        <line
-          key={i}
-          x1={tk.x1}
-          y1={tk.y1}
-          x2={tk.x2}
-          y2={tk.y2}
-          stroke={tk.lit ? color : "rgba(255,255,255,0.16)"}
-          strokeWidth={2}
-          strokeLinecap="round"
-          style={{ transition: "stroke 500ms ease" }}
-        />
+        <g key={i}>
+          {/* dim base tick (always present) */}
+          <line
+            x1={tk.x1}
+            y1={tk.y1}
+            x2={tk.x2}
+            y2={tk.y2}
+            stroke="rgba(255,255,255,0.16)"
+            strokeWidth={2}
+            strokeLinecap="round"
+          />
+          {/* highlighted overlay — opacity follows proximity to selection */}
+          {tk.glowAmt > 0 && (
+            <line
+              x1={tk.x1}
+              y1={tk.y1}
+              x2={tk.x2}
+              y2={tk.y2}
+              stroke={color}
+              strokeWidth={2}
+              strokeLinecap="round"
+              opacity={tk.glowAmt}
+              style={{ transition: "opacity 400ms ease, stroke 500ms ease" }}
+            />
+          )}
+        </g>
       ))}
 
       <g
