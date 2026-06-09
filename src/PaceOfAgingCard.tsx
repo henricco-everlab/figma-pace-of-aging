@@ -76,8 +76,9 @@ export default function PaceOfAgingCard({
         </div>
 
         <p className="poa__caption poa__caption--ai">
-          Rest and a light ride did the trick, you're aging a touch slower
-          today.
+          Rest and a light ride did the trick,
+          <br />
+          you&apos;re aging a touch slower today.
         </p>
       </div>
 

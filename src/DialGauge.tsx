@@ -18,7 +18,7 @@ export default function DialGauge({
   width = 361,
   height = 300,
 }: DialGaugeProps) {
-  const TICKS = 52;
+  const TICKS = 64;
   const cx = width / 2;
   const cy = 250; // center sits low so only the top arc shows
   const rOuter = 232;
@@ -64,7 +64,11 @@ export default function DialGauge({
     const dist = Math.abs(i - litIdx);
     // brightness peaks at the selected tick, eases to 0 by SPREAD
     const glowAmt = dist <= SPREAD ? Math.pow(1 - dist / (SPREAD + 1), 1.6) : 0;
-    return { x1, y1, x2, y2, glowAmt };
+    // fade the dim base ticks toward both ends of the arc
+    const FADE = 12;
+    const edge = Math.min(i, TICKS - 1 - i);
+    const edgeFade = Math.min(1, edge / FADE);
+    return { x1, y1, x2, y2, glowAmt, edgeFade };
   });
 
   // indicator: small triangle just OUTSIDE the last lit tick, apex pointing
@@ -93,9 +97,10 @@ export default function DialGauge({
             y1={tk.y1}
             x2={tk.x2}
             y2={tk.y2}
-            stroke="rgba(255,255,255,0.16)"
-            strokeWidth={2}
-            strokeLinecap="round"
+            stroke="white"
+            strokeOpacity={0.16 * tk.edgeFade}
+            strokeWidth={2.6}
+            strokeLinecap="butt"
           />
           {/* highlighted overlay — opacity follows proximity to selection */}
           {tk.glowAmt > 0 && (
@@ -105,8 +110,8 @@ export default function DialGauge({
               x2={tk.x2}
               y2={tk.y2}
               stroke={color}
-              strokeWidth={2}
-              strokeLinecap="round"
+              strokeWidth={2.6}
+              strokeLinecap="butt"
               opacity={tk.glowAmt}
               style={{ transition: "opacity 400ms ease, stroke 500ms ease" }}
             />

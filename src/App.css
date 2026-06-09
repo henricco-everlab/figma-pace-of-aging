@@ -1,10 +1,11 @@
 .stage {
   min-height: 100vh;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: 28px;
+  gap: 40px;
+  flex-wrap: wrap;
   background: #e8e8e8;
   padding: 40px;
 }
@@ -40,8 +41,7 @@
   font-size: 18px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
-  color: var(--glow, #111);
-  transition: color 500ms ease;
+  color: #111;
 }
 
 .control__divider {
@@ -90,8 +90,8 @@
   cursor: pointer;
   background: linear-gradient(
     to right,
-    var(--glow, #9ff88b) 0%,
-    var(--glow, #9ff88b) var(--pct, 30%),
+    #111 0%,
+    #111 var(--pct, 30%),
     rgba(0, 0, 0, 0.1) var(--pct, 30%),
     rgba(0, 0, 0, 0.1) 100%
   );
@@ -105,9 +105,8 @@
   height: 18px;
   border-radius: 50%;
   background: #fff;
-  border: 3px solid var(--glow, #9ff88b);
+  border: 3px solid #111;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-  transition: border-color 500ms ease;
 }
 
 .control__range::-moz-range-thumb {
@@ -115,11 +114,11 @@
   height: 18px;
   border-radius: 50%;
   background: #fff;
-  border: 3px solid var(--glow, #9ff88b);
+  border: 3px solid #111;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
 }
 
 .control__range:focus-visible {
-  outline: 2px solid var(--glow, #9ff88b);
+  outline: 2px solid #111;
   outline-offset: 4px;
 }
