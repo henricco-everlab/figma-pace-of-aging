@@ -1,0 +1,95 @@
+/* Sleep score card — Figma node 22231:60235 */
+
+.card {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 16px;
+  background: #111111;
+  border-radius: 20px;
+  font-family: "Saans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.card__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #bebebe;
+  flex-shrink: 0;
+}
+
+.card__content {
+  display: flex;
+  flex: 1 0 0;
+  flex-direction: column;
+  min-width: 0;
+  font-size: 14px;
+  line-height: 18px;
+  font-weight: 400;
+}
+
+.card__label {
+  margin: 0;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.48);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.card__value {
+  margin: 0;
+  font-weight: 400;
+  color: #ffffff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* trailing block */
+.card__trailing {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.card__trailing--inline {
+  flex-direction: row;
+  align-items: center;
+  gap: 7px;
+}
+
+.card__score {
+  font-weight: 400;
+  font-size: 22px;
+  line-height: 28px;
+  color: #ffffff;
+  text-align: right;
+}
+
+.card__bar {
+  position: relative;
+  width: 35px;
+  height: 3px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.24);
+}
+
+.card__bar-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  border-radius: 32px;
+  background: #ffffff;
+  transition: width 400ms ease;
+}
