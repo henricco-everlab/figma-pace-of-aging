@@ -3,6 +3,12 @@ type DialGaugeProps = {
   fill: number;
   /** colour of the lit ticks */
   color: string;
+  /** 0..1 position of the person's baseline marker (optional) */
+  baseline?: number;
+  /** shape of the moving pointer */
+  indicator?: "triangle" | "needle" | "dot" | "caret";
+  /** empty/placeholder: all ticks dim grey, no highlight, no pointer */
+  empty?: boolean;
   width?: number;
   height?: number;
 };
@@ -15,10 +21,15 @@ type DialGaugeProps = {
 export default function DialGauge({
   fill,
   color,
+  baseline,
+  indicator = "triangle",
+  empty = false,
   width = 361,
   height = 300,
 }: DialGaugeProps) {
-  const TICKS = 64;
+  // odd count + symmetric sweep (200°→−20°, centered on 90°) means the middle
+  // tick sits exactly at 90° (vertical), so pace 1.0x lands dead-centre.
+  const TICKS = 65;
   const cx = width / 2;
   const cy = 250; // center sits low so only the top arc shows
   const rOuter = 232;
@@ -80,6 +91,26 @@ export default function DialGauge({
   const iy = cy - baseR * Math.sin(indRad);
   const indRot = 90 - indDeg; // makes local +Y point toward the center
 
+  // baseline marker — a longer notch sitting just inside the tick row at the
+  // person's baseline position (snapped to the nearest active tick).
+  let baseMarker: { bx1: number; by1: number; bx2: number; by2: number } | null =
+    null;
+  if (baseline != null) {
+    const bClamped = Math.max(0, Math.min(1, baseline));
+    const bIdx = aStart + Math.round(bClamped * (activeCount - 1));
+    const bDeg = startDeg + stepDeg * bIdx;
+    const bRad = (bDeg * Math.PI) / 180;
+    const cos = Math.cos(bRad);
+    const sin = Math.sin(bRad);
+    const inner = rOuter - tickLen - 8;
+    baseMarker = {
+      bx1: cx + inner * cos,
+      by1: cy - inner * sin,
+      bx2: cx + (inner - 10) * cos,
+      by2: cy - (inner - 10) * sin,
+    };
+  }
+
   return (
     <svg
       className="poa__gauge"
@@ -103,7 +134,7 @@ export default function DialGauge({
             strokeLinecap="butt"
           />
           {/* highlighted overlay — opacity follows proximity to selection */}
-          {tk.glowAmt > 0 && (
+          {!empty && tk.glowAmt > 0 && (
             <line
               x1={tk.x1}
               y1={tk.y1}
@@ -119,14 +150,40 @@ export default function DialGauge({
         </g>
       ))}
 
+      {!empty && baseMarker && (
+        <line
+          x1={baseMarker.bx1}
+          y1={baseMarker.by1}
+          x2={baseMarker.bx2}
+          y2={baseMarker.by2}
+          stroke="white"
+          strokeOpacity={0.85}
+          strokeWidth={2.6}
+          strokeLinecap="round"
+          style={{ transition: "all 320ms ease" }}
+        />
+      )}
+
       <g
         style={{
           transform: `translate(${ix}px, ${iy}px) rotate(${indRot}deg)`,
           transition: "transform 320ms cubic-bezier(0.22, 1, 0.36, 1)",
+          display: empty ? "none" : undefined,
         }}
       >
-        {/* apex points toward +Y (inward after rotation), base sits outward */}
-        <polygon points="0,9 -5,0 5,0" fill={color} style={{ transition: "fill 500ms ease" }} />
+        {/* local +Y points inward (toward the dial centre) after rotation */}
+        {indicator === "triangle" && (
+          <polygon points="0,9 -5,0 5,0" fill={color} style={{ transition: "fill 500ms ease" }} />
+        )}
+        {indicator === "needle" && (
+          <line x1={0} y1={11} x2={0} y2={0} stroke={color} strokeWidth={3} strokeLinecap="round" style={{ transition: "stroke 500ms ease" }} />
+        )}
+        {indicator === "dot" && (
+          <circle cx={0} cy={4} r={3.6} fill={color} style={{ transition: "fill 500ms ease" }} />
+        )}
+        {indicator === "caret" && (
+          <polyline points="-5,0 0,7 5,0" fill="none" stroke={color} strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round" style={{ transition: "stroke 500ms ease" }} />
+        )}
       </g>
     </svg>
   );

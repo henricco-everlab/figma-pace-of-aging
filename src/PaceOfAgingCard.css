@@ -14,6 +14,303 @@
   font-family: "Saans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
+/* ---- connection prompt (used in empty/partial states) ---- */
+.poa__connect {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 16px;
+  background: #111111;
+  border-radius: 20px;
+}
+.poa__connect-ic {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+.poa__connect-text {
+  flex: 1 0 0;
+  min-width: 0;
+}
+.poa__connect-title {
+  margin: 0;
+  font-size: 14px;
+  color: #fff;
+}
+.poa__connect-sub {
+  margin: 2px 0 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: rgba(255, 255, 255, 0.45);
+}
+.poa__connect-btn {
+  flex-shrink: 0;
+  appearance: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: #fff;
+  color: #111;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.poa__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  padding: 40px 20px 24px;
+  width: 100%;
+  box-sizing: border-box;
+}
+.poa__empty-kicker {
+  margin: 0;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.4);
+}
+.poa__empty-title {
+  margin: 0;
+  max-width: 280px;
+  text-align: center;
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 28px;
+  color: #fff;
+}
+.poa__empty-prompts {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  margin-top: 6px;
+}
+
+/* ---- bio age (blood state) ---- */
+.poa__bioage {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 0 20px 20px;
+  box-sizing: border-box;
+  margin-top: -4px;
+}
+.poa__bioage--inline {
+  padding: 8px 0 0;
+  margin-top: 8px;
+}
+.poa__bioage-label {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.45);
+}
+.poa__bioage-value {
+  font-size: 20px;
+  font-weight: 500;
+  color: #fff;
+}
+
+/* ---- empty / greyed pace (health data only) ---- */
+.poa__top--empty {
+  gap: 14px;
+}
+.poa__stat--empty {
+  color: rgba(255, 255, 255, 0.22);
+}
+.poa__stat-lock {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #111111;
+  color: rgba(255, 255, 255, 0.85);
+}
+.poa__rating-minimal--empty {
+  color: rgba(255, 255, 255, 0.4);
+  max-width: 300px;
+}
+.poa__empty-note {
+  margin: 0;
+  width: 280px;
+  font-size: 13px;
+  line-height: 18px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* ---- wearables (locked pace preview) state ---- */
+.poa__lockwrap {
+  position: relative;
+  width: 100%;
+}
+/* the real section rendered behind, blurred & dimmed as a teaser */
+.poa__preview {
+  filter: blur(3.5px) saturate(1);
+  opacity: 0.9;
+  transform: scale(1.02);
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(to bottom, #000 60%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 60%, transparent 100%);
+}
+.poa__lockover {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 24px 28px 0;
+  text-align: center;
+}
+.poa__lock-ic {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  margin-bottom: 4px;
+}
+.poa__lock-title {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 500;
+  color: #fff;
+}
+.poa__lock-sub {
+  margin: 0;
+  max-width: 270px;
+  font-size: 13px;
+  line-height: 18px;
+  color: rgba(255, 255, 255, 0.5);
+}
+/* none-state overlay: title + sub + the two connect prompts, with a scrim */
+.poa__lockover--none {
+  justify-content: flex-end;
+  gap: 6px;
+  padding: 24px 20px;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.15) 0%,
+    rgba(0, 0, 0, 0.45) 45%,
+    rgba(0, 0, 0, 0.72) 100%
+  );
+}
+.poa__lockover--none .poa__empty-prompts {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  margin-top: 14px;
+}
+
+.poa__lock-btn {
+  margin-top: 10px;
+  appearance: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  padding: 11px 20px;
+  border-radius: 999px;
+  background: #fff;
+  color: #111;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* CTA group: primary (hugs content) + secondary ghost text link */
+.poa__cta-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.poa__cta-group .poa__lock-btn {
+  margin-top: 0;
+  width: auto;
+  padding: 12px 28px;
+}
+.poa__lock-btn--ghost {
+  padding: 6px 12px;
+  background: transparent;
+  border-color: transparent;
+  color: rgba(255, 255, 255, 0.55);
+  font-weight: 400;
+}
+.poa__lock-btn--grey {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: transparent;
+  color: #ffffff;
+  font-weight: 400;
+}
+.poa__lock-btn--block {
+  margin-top: 0;
+  width: 100%;
+}
+
+/* awaiting-results pill */
+.poa__pending {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  font-weight: 500;
+}
+.poa__pending-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ffb784;
+  animation: pending-pulse 1.4s ease-in-out infinite;
+}
+@keyframes pending-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+/* blood-state CTA block */
+.poa__metrics--col {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 14px;
+}
+.poa__cta-head {
+  text-align: center;
+}
+.poa__cta-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: #fff;
+}
+.poa__cta-sub {
+  margin: 4px 0 0;
+  font-size: 13px;
+  line-height: 18px;
+  color: rgba(255, 255, 255, 0.45);
+}
+
 /* fine film grain over the glow (sits above glow, below content) */
 .poa__noise {
   position: absolute;
@@ -105,6 +402,9 @@
 }
 
 .poa__kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   margin: 0;
   font-weight: 400;
   font-size: 15px;
@@ -112,24 +412,86 @@
   letter-spacing: 0.01em;
   color: rgba(255, 255, 255, 0.4);
 }
+.poa__info {
+  opacity: 0.7;
+  cursor: pointer;
+}
+
+/* share button (full state only), top-right inside the card */
+.poa__share {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  cursor: pointer;
+}
 
 .poa__stat {
   margin: 0;
   font-weight: 500;
   font-size: 48px;
   line-height: 1;
+  letter-spacing: -0.01em;
   color: #ffffff;
   text-align: center;
   font-variant-numeric: tabular-nums;
 }
 
-
 /* minimalist rating — plain text, no pill */
 .poa__rating-minimal {
-  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px; /* reserve two lines so the layout never shifts */
+  max-width: 260px;
+  font-size: 15px;
   font-weight: 400;
   line-height: 20px;
-  color: rgba(255, 255, 255, 0.92);
+  text-align: center;
+  text-wrap: balance;
+  color: rgba(255, 255, 255, 0.55);
+  transition: color 500ms ease;
+}
+.poa__rating-minimal.is-better {
+  color: #9ff88b;
+}
+.poa__rating-minimal.is-worse {
+  color: #ff915a;
+}
+.poa__rating-minimal.is-on {
+  color: #ffffff;
+}
+
+/* small change-from-yesterday delta, inline with the AI insight */
+.poa__delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+  vertical-align: middle;
+  color: #ffffff;
+  -webkit-text-fill-color: #ffffff;
+}
+.poa__delta svg {
+  flex-shrink: 0;
+  width: 11px;
+  height: 11px;
+}
+
+/* small superscript asterisk for the population footnote */
+.poa__ast {
+  font-size: 0.6em;
+  vertical-align: super;
+  opacity: 0.7;
+  margin-left: 1px;
 }
 
 /* rating pill (e.g. "Great") */
@@ -141,16 +503,23 @@
   background: color-mix(in srgb, var(--glow, #9ff88b) 16%, transparent);
   color: var(--glow, #9ff88b);
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 400;
   line-height: 18px;
   transition: background 500ms ease, color 500ms ease;
+}
+.poa__rating-badge.is-on {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
 }
 
 /* AI insight copy — animated white→80%-white gradient sweeping across to
    give it a subtle "thinking / AI generated" shimmer. */
 .poa__caption {
   margin: 0;
-  width: 311px;
+  width: 100%;
+  max-width: 300px;
+  padding: 0 16px;
+  box-sizing: border-box;
   font-weight: 400;
   font-size: 14px;
   line-height: 18px;
