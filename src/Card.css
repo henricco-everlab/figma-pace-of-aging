@@ -73,6 +73,8 @@
   line-height: 28px;
   color: #ffffff;
   text-align: right;
+  min-width: 3ch;
+  font-variant-numeric: tabular-nums;
 }
 
 .card__bar {
