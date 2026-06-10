@@ -11,7 +11,7 @@
   background: #000000;
   border-radius: 32px;
   overflow: hidden;
-  font-family: "Saans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: "Saans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 /* ---- connection prompt (used in empty/partial states) ---- */
