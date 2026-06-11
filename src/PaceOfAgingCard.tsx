@@ -50,6 +50,8 @@ export type Connection = "full" | "blood" | "wearables" | "none";
 export type BloodStage = "idle" | "booked" | "pending";
 /** layout variant for the nothing-connected state */
 export type EmptyVariant = "A" | "B";
+/** AI insight tone: descriptive (what happened) vs action (what to do) */
+export type InsightStyle = "descriptive" | "action";
 
 type Props = {
   pace: number;
@@ -64,6 +66,8 @@ type Props = {
   baselineStyle?: BaselineStyle;
   statusMetric?: StatusMetric;
   indicator?: Indicator;
+  insightStyle?: InsightStyle;
+  showDailyVariation?: boolean;
 };
 
 function DropletIcon() {
@@ -125,6 +129,8 @@ export default function PaceOfAgingCard({
   baselineStyle = "status",
   statusMetric = "population",
   indicator = "triangle",
+  insightStyle = "descriptive",
+  showDailyVariation = true,
 }: Props) {
   const glow = paceColor(pace);
   const fill = (pace - 0.5) / 1.0;
@@ -186,32 +192,26 @@ export default function PaceOfAgingCard({
   const statusText =
     statusMetric === "test"
       ? better
-        ? `${testPct}% better than last test`
+        ? `${testPct}% better than baseline`
         : worse
-        ? `${testPct}% worse than last test`
-        : `same as last test`
+        ? `${testPct}% worse than baseline`
+        : `same as baseline`
       : vsPopulation;
 
   // AI insight copy — folds in the baseline comparison when that mode is on
   const insight = showInInsight
     ? better
-      ? `Rest and a light ride did the trick. You're aging ${vsAge} now, up from ${vsAgeBase} at your last test.`
+      ? `Rest and a light ride did the trick. You're aging ${vsAge} now, up from ${vsAgeBase} at your baseline.`
       : worse
-      ? `A heavier day than usual. You're aging ${vsAge}, down from ${vsAgeBase} at your last test.`
-      : `Right where your last test left off, aging ${vsAge}.`
+      ? `A heavier day than usual. You're aging ${vsAge}, down from ${vsAgeBase} at your baseline.`
+      : `Right where your baseline sits, aging ${vsAge}.`
     : (() => {
         const diff = pace - yesterday;
         const amount = Math.abs(diff);
-        // no meaningful change since yesterday → no number/arrow
-        if (amount < 0.005) {
-          return <>Steady as yesterday, you&apos;re holding your pace of aging today.</>;
-        }
         const slowerThanYesterday = diff < 0;
-        return (
+        const deltaEl = showDailyVariation && amount >= 0.005 && (
           <>
-            {slowerThanYesterday
-              ? "Rest and a light ride did the trick, you're aging a bit slower today."
-              : "A heavier day than usual, you're aging a bit faster today."}{" "}
+            {" "}
             <span className="poa__delta">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                 {slowerThanYesterday ? (
@@ -222,6 +222,30 @@ export default function PaceOfAgingCard({
               </svg>
               {amount.toFixed(2)}
             </span>
+          </>
+        );
+
+        // action-focused: tell the user what to do next (kept to 2 lines)
+        if (insightStyle === "action") {
+          if (amount < 0.005)
+            return <>Good sleep. A workout today could nudge your pace down.</>;
+          return slowerThanYesterday ? (
+            <>Great sleep. Stay active today to keep your pace down.{deltaEl}</>
+          ) : (
+            <>Add some movement today to bring your pace back down.{deltaEl}</>
+          );
+        }
+
+        // descriptive: what happened today
+        if (amount < 0.005) {
+          return <>Steady as yesterday, you&apos;re holding your pace of aging today.</>;
+        }
+        return (
+          <>
+            {slowerThanYesterday
+              ? "Rest and a light ride did the trick, you're aging a bit slower today."
+              : "A heavier day than usual, you're aging a bit faster today."}
+            {deltaEl}
           </>
         );
       })();
@@ -255,7 +279,7 @@ export default function PaceOfAgingCard({
       <DialGauge fill={0.5} color="#9ff88b" empty />
       <div className="poa__hero">
         <p className="poa__kicker">
-          Today&apos;s pace of aging
+          Pace of aging
           <svg className="poa__info" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
             <circle cx="12" cy="12" r="9" />
             <path d="M12 11v5M12 8h.01" />
@@ -268,9 +292,9 @@ export default function PaceOfAgingCard({
         </span>
         <span className="poa__rating-minimal poa__rating-minimal--empty">
           {bloodStage === "booked"
-            ? "Your blood test is booked. Results unlock your current pace of aging and biological age."
+            ? "Your blood test is booked. Results reveal your biological age."
             : bloodStage === "pending"
-            ? "Your blood results should arrive by 18 Jul. They'll set your biological age and current pace of aging."
+            ? "Your blood results should arrive by 18 Jul. They'll reveal your biological age."
             : "Add a blood test and your health data to see how fast you're aging each day."}
         </span>
       </div>
@@ -312,7 +336,7 @@ export default function PaceOfAgingCard({
       <ConnectPrompt
         icon={<WatchIcon />}
         title="Connect health data"
-        sub="Watch your habits shape your daily pace of aging"
+        sub="Watch your habits shape your pace of aging"
         cta="Connect"
       />
     </div>
@@ -324,7 +348,7 @@ export default function PaceOfAgingCard({
 
       <div className="poa__hero">
         <p className="poa__kicker">
-          Today&apos;s pace of aging
+          Pace of aging
           <svg className="poa__info" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
             <circle cx="12" cy="12" r="9" />
             <path d="M12 11v5M12 8h.01" />
@@ -333,7 +357,22 @@ export default function PaceOfAgingCard({
         <p className="poa__stat">{pace.toFixed(2)}x</p>
         {(() => {
           const status = showInStatus ? statusText : null;
-          const text = status ? `${rating(pace)} · ${status}` : rating(pace);
+          // rating word reflects the active status, not just the absolute pace
+          const ratingWord =
+            showInStatus && statusMetric === "test"
+              ? better
+                ? "Improving"
+                : worse
+                ? "Slipping"
+                : "On track"
+              : showInStatus && statusMetric === "population"
+              ? percentile >= 60
+                ? "Great"
+                : percentile >= 45
+                ? "On track"
+                : "Needs work"
+              : rating(pace);
+          const text = status ? `${ratingWord} · ${status}` : ratingWord;
           const isPop = showInStatus && statusMetric === "population";
           const tone = !showInStatus
             ? ""
@@ -367,11 +406,7 @@ export default function PaceOfAgingCard({
       className={`poa poa--${connection}`}
       style={{
         ["--glow" as string]:
-          connection === "full"
-            ? glow
-            : connection === "blood"
-            ? paceColor(baseline ?? 0.9)
-            : "rgba(255,255,255,0.5)",
+          connection === "full" ? glow : "rgba(255,255,255,0.5)",
       }}
     >
       <div className="poa__glow" aria-hidden />
@@ -400,7 +435,7 @@ export default function PaceOfAgingCard({
             <DialGauge fill={0.5} color="#9ff88b" empty />
             <div className="poa__hero">
               <p className="poa__kicker">
-          Today&apos;s pace of aging
+          Pace of aging
           <svg className="poa__info" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
             <circle cx="12" cy="12" r="9" />
             <path d="M12 11v5M12 8h.01" />
@@ -421,63 +456,64 @@ export default function PaceOfAgingCard({
             <ConnectPrompt
               icon={<DropletIcon />}
               title="Blood test"
-              sub="Sets your biological age & current pace of aging"
+              sub="Reveals your biological age"
               cta="Connect"
             />
             <ConnectPrompt
               icon={<WatchIcon />}
               title="Connect health data"
-              sub="Watch your habits shape your daily pace of aging"
+              sub="Watch your habits shape your pace of aging"
               cta="Connect"
             />
           </div>
         </>
       )}
 
-      {/* ---- BLOOD: bloods give baseline pace + bio age; daily variation needs wearables ---- */}
+      {/* ---- BLOOD: blood test gives biological age; pace needs health data ---- */}
       {connection === "blood" && (
         <>
-          <div className="poa__top">
-            <DialGauge fill={baseFill ?? 0.4} color={paceColor(baseline ?? 0.9)} />
+          <div className="poa__top poa__top--empty">
+            <DialGauge fill={0.5} color="#9ff88b" empty />
             <div className="poa__hero">
-              <p className="poa__kicker">Current pace of aging</p>
-              <p className="poa__stat">{(baseline ?? 0.9).toFixed(2)}x</p>
-              {(() => {
-                const p = Math.max(
-                  1,
-                  Math.min(99, Math.round((1 - cdf(baseline ?? 0.9)) * 100))
-                );
-                const label =
-                  p >= 60
-                    ? `Top ${100 - p}% of people`
-                    : p >= 45
-                    ? "Around average"
-                    : `Bottom ${p}% of people`;
-                return (
-                  <span
-                    className={`poa__rating-minimal ${
-                      p >= 60 ? "is-better" : p >= 45 ? "is-on" : "is-worse"
-                    }`}
-                  >
-                    {label}
-                    <sup className="poa__ast">*</sup>
-                  </span>
-                );
-              })()}
+              <p className="poa__kicker">
+                Pace of aging
+                <svg className="poa__info" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <circle cx="12" cy="12" r="9" />
+                  <path d="M12 11v5M12 8h.01" />
+                </svg>
+              </p>
+              <span className="poa__stat-lock" aria-hidden>
+                <svg width="15" height="19" viewBox="0 0 16 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                  <path fillRule="evenodd" clipRule="evenodd" d="M8 0C5.23858 0 3 2.23858 3 5V7.12602C1.27477 7.57006 0 9.13616 0 11V16C0 18.2091 1.79086 20 4 20H12C14.2091 20 16 18.2091 16 16V11C16 9.13616 14.7252 7.57006 13 7.12602V5C13 2.23858 10.7614 0 8 0ZM11 7V5C11 3.34315 9.65685 2 8 2C6.34315 2 5 3.34315 5 5V7H11ZM8 11C8.55229 11 9 11.4477 9 12V15C9 15.5523 8.55229 16 8 16C7.44772 16 7 15.5523 7 15V12C7 11.4477 7.44772 11 8 11Z" />
+                </svg>
+              </span>
+              <span className="poa__rating-minimal poa__rating-minimal--empty">
+                Connect your health data to see how fast you&apos;re aging each
+                day.
+              </span>
             </div>
+            {emptyVariant === "A" && (
+              <div className="poa__cta-group">
+                <button className="poa__lock-btn" type="button">
+                  Connect health data
+                </button>
+              </div>
+            )}
             <div className="poa__bioage poa__bioage--inline">
               <span className="poa__bioage-label">Biological age</span>
               <span className="poa__bioage-value">{bioAge}</span>
             </div>
           </div>
-          <div className="poa__metrics">
-            <ConnectPrompt
-              icon={<WatchIcon />}
-              title="Connect health data"
-              sub="Watch your habits shape your daily pace of aging"
-              cta="Connect"
-            />
-          </div>
+          {emptyVariant === "B" && (
+            <div className="poa__metrics">
+              <ConnectPrompt
+                icon={<WatchIcon />}
+                title="Connect health data"
+                sub="Watch your habits shape your pace of aging"
+                cta="Connect"
+              />
+            </div>
+          )}
         </>
       )}
 

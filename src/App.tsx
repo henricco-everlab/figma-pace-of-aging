@@ -7,12 +7,13 @@ import PaceOfAgingCard, {
   type Connection,
   type BloodStage,
   type EmptyVariant,
+  type InsightStyle,
 } from "./PaceOfAgingCard";
 import "./App.css";
 
 export default function App() {
-  const [pace, setPace] = useState(1.0);
-  const [baseline, setBaseline] = useState(1.0);
+  const [pace, setPace] = useState(0.94);
+  const [baseline, setBaseline] = useState(0.96);
   const [yesterday, setYesterday] = useState(0.97);
   const [rowStyle, setRowStyle] = useState<RowStyle>("ring");
   const [labelStyle, setLabelStyle] = useState<LabelStyle>("minimal");
@@ -21,6 +22,8 @@ export default function App() {
   const [hasWearables, setHasWearables] = useState(true);
   const [bloodStage, setBloodStage] = useState<BloodStage>("idle");
   const [emptyVariant, setEmptyVariant] = useState<EmptyVariant>("A");
+  const [insightStyle, setInsightStyle] = useState<InsightStyle>("action");
+  const [showDailyVariation, setShowDailyVariation] = useState(false);
   const connection: Connection =
     hasBloods && hasWearables
       ? "full"
@@ -43,6 +46,8 @@ export default function App() {
         bloodStage={bloodStage}
         emptyVariant={emptyVariant}
         yesterday={yesterday}
+        insightStyle={insightStyle}
+        showDailyVariation={showDailyVariation}
       />
 
       <div
@@ -112,7 +117,8 @@ export default function App() {
           </>
         )}
 
-        {!hasBloods && !hasWearables && bloodStage === "idle" && (
+        {((!hasBloods && !hasWearables && bloodStage === "idle") ||
+          (hasBloods && !hasWearables)) && (
           <>
             <div className="control__divider" />
             <div className="control__head">
@@ -143,7 +149,7 @@ export default function App() {
           <>
             <div className="control__divider" />
             <div className="control__head">
-              <span className="control__label">Today&apos;s pace</span>
+              <span className="control__label">Pace of aging</span>
               <span className="control__value">{pace.toFixed(2)}x</span>
             </div>
             <input
@@ -159,14 +165,10 @@ export default function App() {
           </>
         )}
 
-        {(connection === "full" || connection === "blood") && (
+        {connection === "full" && (
           <>
             <div className="control__head">
-              <span className="control__label">
-                {connection === "blood"
-                  ? "Current pace indicator"
-                  : "Previous test indicator"}
-              </span>
+              <span className="control__label">Baseline indicator</span>
               <span className="control__value">{baseline.toFixed(2)}x</span>
             </div>
             <input
@@ -182,25 +184,6 @@ export default function App() {
               onChange={(e) => setBaseline(parseFloat(e.target.value))}
               aria-label="Baseline"
             />
-            {connection === "full" && (
-              <>
-                <div className="control__head">
-                  <span className="control__label">Yesterday&apos;s pace</span>
-                  <span className="control__value">{yesterday.toFixed(2)}x</span>
-                </div>
-                <input
-                  className="control__range"
-                  style={{ ["--pct" as string]: `${((yesterday - 0.5) / 1.0) * 100}%` }}
-                  type="range"
-                  min={0.5}
-                  max={1.5}
-                  step={0.01}
-                  value={yesterday}
-                  onChange={(e) => setYesterday(parseFloat(e.target.value))}
-                  aria-label="Yesterday's pace"
-                />
-              </>
-            )}
           </>
         )}
 
@@ -277,14 +260,76 @@ export default function App() {
                 className={`seg__btn ${statusMetric === "test" ? "is-active" : ""}`}
                 onClick={() => setStatusMetric("test")}
               >
-                Last test
+                Your baseline
               </button>
             </div>
             <p className="control__hint">
               {statusMetric === "population"
                 ? "How you rank against people like you."
-                : "Change in your pace since your previous test."}
+                : "Your pace compared to your baseline."}
             </p>
+
+            <div className="control__divider" />
+            <div className="control__head">
+              <span className="control__label">AI insight style</span>
+            </div>
+            <div className="seg" role="tablist" aria-label="AI insight style">
+              {(
+                [
+                  ["descriptive", "Descriptive"],
+                  ["action", "Action"],
+                ] as const
+              ).map(([val, label]) => (
+                <button
+                  key={val}
+                  role="tab"
+                  aria-selected={insightStyle === val}
+                  className={`seg__btn ${insightStyle === val ? "is-active" : ""}`}
+                  onClick={() => setInsightStyle(val)}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+            <p className="control__hint">
+              {insightStyle === "descriptive"
+                ? "Explains what happened to your pace today."
+                : "Suggests what to do next to improve it."}
+            </p>
+
+            <div className="toggle-row">
+              <span className="toggle-row__label">Daily variation</span>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={showDailyVariation}
+                aria-label="Daily variation"
+                className={`switch ${showDailyVariation ? "is-on" : ""}`}
+                onClick={() => setShowDailyVariation((v) => !v)}
+              >
+                <span className="switch__knob" />
+              </button>
+            </div>
+
+            {showDailyVariation && (
+              <>
+                <div className="control__head">
+                  <span className="control__label">Yesterday&apos;s pace</span>
+                  <span className="control__value">{yesterday.toFixed(2)}x</span>
+                </div>
+                <input
+                  className="control__range"
+                  style={{ ["--pct" as string]: `${((yesterday - 0.5) / 1.0) * 100}%` }}
+                  type="range"
+                  min={0.5}
+                  max={1.5}
+                  step={0.01}
+                  value={yesterday}
+                  onChange={(e) => setYesterday(parseFloat(e.target.value))}
+                  aria-label="Yesterday's pace"
+                />
+              </>
+            )}
           </>
         )}
       </div>
