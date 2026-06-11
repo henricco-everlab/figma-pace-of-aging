@@ -17,7 +17,7 @@ export default function App() {
   const [yesterday, setYesterday] = useState(0.97);
   const [rowStyle, setRowStyle] = useState<RowStyle>("ring");
   const [labelStyle, setLabelStyle] = useState<LabelStyle>("minimal");
-  const [statusMetric, setStatusMetric] = useState<StatusMetric>("population");
+  const [statusMetric, setStatusMetric] = useState<StatusMetric>("test");
   const [hasBloods, setHasBloods] = useState(true);
   const [hasWearables, setHasWearables] = useState(true);
   const [bloodStage, setBloodStage] = useState<BloodStage>("idle");
